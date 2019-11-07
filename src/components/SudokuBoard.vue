@@ -3,7 +3,7 @@
     <div class="board">
         <div class="row" v-for="(row, rowIndex) in board" :key="rowIndex">
             <div class="cell" v-for="(cell, cellIndex) in row" :key="cellIndex">
-                <input type="/text" @keypress="validate($event, rowIndex, cellIndex)" maxlength="1" v-model="board[rowIndex][cellIndex]" />
+                <input :id="rowIndex + '|' + cellIndex" type="/text" @keypress="validate($event, rowIndex, cellIndex)" maxlength="1" v-model="board[rowIndex][cellIndex]" />
             </div>
         </div>
     </div>
@@ -15,6 +15,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import { cloneDeep } from "lodash";
 
 @Component
 export default class SudokuBoard extends Vue {
@@ -31,17 +32,7 @@ export default class SudokuBoard extends Vue {
              ["", "", "", "", "", "", "", "", ""],   
              ["", "", "", "", "", "", "", "", ""],
             ],
-            steps: [[
-             ["", "", "", "", "", "", "", "", ""],
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],   
-             ["", "", "", "", "", "", "", "", ""],
-        ]]
+            steps: []
         }
     }
     validate(event: KeyboardEvent, row: number, col: number) {
@@ -68,12 +59,26 @@ export default class SudokuBoard extends Vue {
         ];
     }
     startSolve() {
+        const init = cloneDeep(this.$data.board);
+ 
         const done = this.solve();
 
         if (done) {
-            const board = this.$data.board;
             this.reset();
-            this.$data.board = board;
+            console.log(init);
+            
+            this.$data.board = init;
+            this.$data.steps.forEach((state: any, index: number) => {
+                setTimeout(() => {
+                    this.$data.board[state[0]][state[1]] = state[2];
+                    Vue.set(this.$data.board[state[0]], state[1], state[2] );
+                    // const board = this.$data.board;
+                    // this.$data.board = board;
+                    // console.log(this.$data.board);
+                    
+                }, index * 10)
+            })
+            
         }
     }
     solve(): boolean {
@@ -96,6 +101,7 @@ export default class SudokuBoard extends Vue {
             {
                 //Assign for checking
                 this.$data.board[row][col] = num;
+                this.$data.steps.push([row, col, num])
 
                 //Search next value in stack
                 if (this.solve())
@@ -104,6 +110,7 @@ export default class SudokuBoard extends Vue {
                 }
                 //If we get to this point, the previous check failed, so we mark as blank and check next value
                 this.$data.board[row][col] = "";
+                this.$data.steps.push([row, col, ""])
             }
         }
         //Backtrack
