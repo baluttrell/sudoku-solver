@@ -71,11 +71,7 @@ export default class SudokuBoard extends Vue {
             this.$data.steps.forEach((state: any, index: number) => {
                 setTimeout(() => {
                     this.$data.board[state[0]][state[1]] = state[2];
-                    Vue.set(this.$data.board[state[0]], state[1], state[2] );
-                    // const board = this.$data.board;
-                    // this.$data.board = board;
-                    // console.log(this.$data.board);
-                    
+                    Vue.set(this.$data.board[state[0]], state[1], state[2] );    
                 }, index * 10)
             })
             
@@ -120,11 +116,12 @@ export default class SudokuBoard extends Vue {
         if (col == 9) {
             return false;
         }
-        for (let row = 0; row < 9; row++)
+        for (let row = 0; row < 9; row++) {
             if (this.$data.board[row][col] == value)
             {
                 return true;
             }
+        }
         return false;
     }
     isInRow(row: number, value: number): boolean {
@@ -144,12 +141,14 @@ export default class SudokuBoard extends Vue {
         if (startRow == 9 || startColumn == 9) {
             return false;
         }
-        for (let row = 0; row < 3; row++)
-            for (let col = 0; col < 3; col++)
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
                 if (this.$data.board[row + startRow][col + startColumn] == value)
                 {
                     return true;
                 }
+        }
+        }
         return false;
     }
     isSafe(row: number, col: number, value: number): boolean
@@ -159,12 +158,14 @@ export default class SudokuBoard extends Vue {
             !this.isInBox(row - row % 3, col - col % 3, value);
     }
     emptyCell(): number[] {
-        for (let row = 0; row < 9; row++)
-            for (let col = 0; col < 9; col++)
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
                 if (this.$data.board[row][col] == "")
                 {
                     return [row, col];
                 }
+            } 
+        }
         return [9, 9];
     }
 }
